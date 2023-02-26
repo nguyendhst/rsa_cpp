@@ -1,6 +1,10 @@
 <h1 align="center"> Java RSA Implementation</h1>
    <h3 style="color:blue;"> Made for the CO3069 course</h3>
 
+## Commit message convention
+  - Format: `topic: msg` (e.g `fix: renamed class`)
+  - Some common topics: `build`, `feat`, `fix`, `docs`, `refactor`.
+
 ## Project Setup
   - IDE: IntelliJ IDEA (recommended)
   - Java 11 (temporary)
