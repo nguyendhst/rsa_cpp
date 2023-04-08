@@ -16,7 +16,7 @@ class MathTest {
         for (int i = 0; i < 100; i++) {
             BigInteger random1 = math.random(1024);
             BigInteger random2 = math.random(1024);
-            assertEquals(random1, random2);
+            assertNotEquals(random1, random2);
         }
     }
 }
