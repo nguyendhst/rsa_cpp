@@ -17,8 +17,8 @@ public class PrivateKey {
     // prime factors of n
     private ArrayList<BigInteger> primes;
     // private exponent
-    private BigInteger d;
-
+    public BigInteger d;
+	public BigInteger n;
     // public GenerateKey(SecureRandom random, int bits) {
     //     BigInteger p = BigInteger.probablePrime(bits, random);
     //     BigInteger q = BigInteger.probablePrime(bits, random);
