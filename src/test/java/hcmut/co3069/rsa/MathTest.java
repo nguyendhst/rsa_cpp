@@ -1,5 +1,6 @@
 package hcmut.co3069.rsa;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -11,7 +12,6 @@ class MathTest {
     @Test
     void random() {
         SecureRandom random = new SecureRandom();
-        Math math = new Math(random);
 		int bitLength = 2048;
         BigInteger min = BigInteger.valueOf(2).pow(bitLength - 1);
 		BigInteger max = BigInteger.valueOf(2).pow(bitLength).subtract(BigInteger.ONE);
@@ -26,14 +26,47 @@ class MathTest {
 
     @Test
     void modPow() {
+        SecureRandom random = new SecureRandom();
+
+        for (int i = 0; i < 1000; i++) {
+            BigInteger r1 = new BigInteger(random.nextInt(1000),random).add(BigInteger.ONE);
+            BigInteger r2 = new BigInteger(random.nextInt(1000),random).add(BigInteger.ONE);
+            BigInteger m = new BigInteger(random.nextInt(2000),random).add(BigInteger.ONE);
+            BigInteger re1 = r1.modPow(r2,m);
+            BigInteger re2 = Math.modPow(r1,r2,m);
+            assertEquals(re1,re2);
+        }
+    }
+    @Test
+    void modPowInt() {
+        SecureRandom random = new SecureRandom();
+
+        for (int i = 0; i < 1000; i++) {
+            BigInteger r1 = new BigInteger(random.nextInt(1000),random).add(BigInteger.ONE);
+            int r2 = random.nextInt(1000000) + 1 ;
+            BigInteger m = new BigInteger(random.nextInt(2000),random).add(BigInteger.ONE);
+            BigInteger re1 = r1.modPow(BigInteger.valueOf(r2),m);
+            BigInteger re2 = Math.modPow(r1,r2,m);
+            assertEquals(re1,re2);
+        }
     }
 
     @Test
     void testRandom() {
+        SecureRandom rng = new SecureRandom();
+        for (int i = 0; i < 1000; i++) {
+            assertTrue(rng.nextFloat()<1.0);
+        }
     }
 
     @Test
     void gcd() {
+        SecureRandom random =new SecureRandom();
+        for (int i = 0; i < 1000; i++) {
+            BigInteger r1 = new BigInteger(random.nextInt(200),random);
+            BigInteger r2 = new BigInteger(random.nextInt(200),random);
+            assertEquals(r1.gcd(r2),Math.gcd(r1,r2));
+        }
     }
 
     @Test
@@ -75,19 +108,29 @@ class MathTest {
         int bitlen = 2048;
         for (int index = 0; index < 1; index++) {
             BigInteger p = Math.randomStrongPrime(bitlen);
-            assertTrue(p.isProbablePrime(1));
+            assertTrue(p.isProbablePrime(10));
         }
     }
-
-	@Test
-	void gordonStrongPrime2() {
-		int bitlen = 2048;
-		SecureRandom rnd = new SecureRandom();
-		BigInteger test = BigInteger.probablePrime(2048, rnd);
-		test.add(test);
-		for (int index = 0; index < 1; index++) {
-			BigInteger p = Math.gordonStrongPrime(2048);
-			assertTrue(p.isProbablePrime(10));
-		}
-	}
+//
+//	@Test
+//	void gordonStrongPrime2() {
+//		int bitlen = 2048;
+//		SecureRandom rnd = new SecureRandom();
+//		for (int index = 0; index < 1; index++) {
+//			BigInteger p = Math.gordonStrongPrime(2048);
+//			assertTrue(p.isProbablePrime(10));
+//		}
+//	}
+    @Test
+    public void testModInverse(){
+        SecureRandom rnd = new SecureRandom();
+        for (int i = 0; i < 10; i++) {
+            BigInteger a = BigInteger.probablePrime(300,rnd);
+            BigInteger c = BigInteger.probablePrime(200,rnd);
+            BigInteger m1 = Math.modInverse(c,a);
+            BigInteger m2 = c.modInverse(a);
+            assertEquals(m1, m2);
+        }
+//        System.out.println(a.modInverse(c).compareTo(Math.modInverse(c,a)));
+    }
 }

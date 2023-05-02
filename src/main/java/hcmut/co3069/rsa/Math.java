@@ -1,18 +1,49 @@
 package hcmut.co3069.rsa;
 
+import java.lang.invoke.MutableCallSite;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 public class Math {
 
-	private SecureRandom rng;
-	public static final BigInteger SMALL_PRIME_PRODUCT = BigInteger.valueOf(2* 3* 5* 7* 11* 13* 17* 19* 23* 29* 31*37*41);
+	private static SecureRandom rng = new SecureRandom();
+	public static final BigInteger SMALL_PRIME_PRODUCT = BigInteger.valueOf(2L * 3* 5* 7* 11* 13* 17* 19* 23* 29* 31*37*41);
+	public static final BigInteger P0 = BigInteger.valueOf(10000000);
+	public static final double c_opt = 1.2;
+	public static final int margin = 20;
+	/*
+	*FUNCTION TrialDivision(a,b: Longlnt): BOOLEAN returns the value TRUE if
+and only if a is not divisible by a prime smaller or equal to b. This procedure
+requires a list of small primes, e.g., the primes smaller than 216 = 65536.
+	* */
+	public static final int[] SMALL_PRIMES = getSmallPrimes();
 	public Math (SecureRandom random) {
-		this.rng = random;
+		rng = random;
 	}
 
-
-	
+	public static int[] getSmallPrimes() {
+		int p = 0;
+		int two16 = 65536;
+		ArrayList<Integer> primes = new ArrayList<Integer>();
+		while (p< two16){
+			if (isPrime(p)){
+				primes.add(p);
+			}
+			p++;
+		};
+		return  primes.stream().mapToInt(i->i).toArray();
+	}
+	public static boolean isPrime(int n){
+		if (n <= 1) return false;
+		if (n <= 3) return true;
+		if (n%2 == 0 || n%3 == 0) return false;
+		for (int i = 5; i*i <= n; i = i + 6)
+			if (n%i == 0 || n%(i+2) == 0)
+				return false;
+		return false;
+	}
 
 	// modPow takes a base, exponent and modulus and returns base^exponent % modulus
 	// modPow is a function that calculates the remainder of the division of a number by another number
@@ -23,7 +54,7 @@ public class Math {
 				- Nếu số mũ là lẻ thì result = result * base % modulus
 				- Nếu số mũ là chẵn thì base = base * base % modulus
 				- Lấy số mũ chia 2
-				Đến khi số mũ bằng 0 thì dừng
+				Khi số mũ bằng 0 thì dừng
 				Thuật toán có dạng chứng minh như sau:
 					base ^ exponent % modulus = (((base ^ 2) ^ (exponent // 2) % modulus)* (base ^ (exponent % 2) % modulus)) mod modulus
 				*/
@@ -31,8 +62,8 @@ public class Math {
 
         while (exponent.compareTo(BigInteger.ZERO) > 0) {
 			
-			// Đầu tiên ta kiểm tra xem số mũ có chẵn hay lẻ
-            if (exponent.and(BigInteger.ONE).equals(BigInteger.ONE)) {
+			// ta kiểm tra xem số mũ có chẵn hay lẻ
+            if (exponent.testBit(0)) {
                 result = result.multiply(base).mod(modulus);
             }
 			// Sau đó base mũ 2 rồi phần trăm cho modulus để tìm base mới  
@@ -42,27 +73,51 @@ public class Math {
         }
         return result;
     }
-	
-	
-	/*
-	public static BigInteger generateRandomBigInteger(BigInteger min, BigInteger max) {
-        if (min.compareTo(max) > 0) {
-            throw new IllegalArgumentException("min should be less than or equal to max");
-        }
+	static BigInteger modPow(BigInteger base,int exponent,BigInteger modulus){
+		/**
+				Thuật toán như sau:
+				- Nếu số mũ là lẻ thì result = result * base % modulus
+				- Nếu số mũ là chẵn thì base = base * base % modulus
+				- Lấy số mũ chia 2
+				Khi số mũ bằng 0 thì dừng
+				Thuật toán có dạng chứng minh như sau:
+					base ^ exponent % modulus = (((base ^ 2) ^ (exponent // 2) % modulus)* (base ^ (exponent % 2) % modulus)) mod modulus
+				*/
+		BigInteger result = BigInteger.ONE;
 
-        Random rnd = new Random();
-        BigInteger range = max.subtract(min).add(BigInteger.ONE); // Calculate range (max - min + 1)
-        int rangeBitLength = range.bitLength();
+		while (exponent > 0) {
 
-        BigInteger result;
-        do {
-            result = new BigInteger(rangeBitLength, rnd);
-        } while (result.compareTo(range) >= 0);
-
-        return result.add(min);
-    }
+			// ta kiểm tra xem số mũ có chẵn hay lẻ
+			if ( exponent % 2 == 1 ) {
+				result = result.multiply(base).mod(modulus);
+			}
+			// Sau đó base mũ 2 rồi phần trăm cho modulus để tìm base mới
+			base = base.multiply(base).mod(modulus);
+			// Lấy số mũ chia 2
+			exponent = exponent>>1;
+		}
+		return result;
+	}
 	
-	*/
+
+
+	public static BigInteger randomRange(BigInteger min, BigInteger max) {
+		BigInteger range = max.subtract(min);
+		int len = range.bitLength();
+		BigInteger res = new BigInteger(len, rng);
+		BigInteger result = new BigInteger(len, rng);
+		while(result.compareTo(range) >= 0) {
+			result = new BigInteger(len, rng);
+		}
+		result = result.add(min);
+		return result;
+	}
+
+	private static double GenerateRelativeSize(){
+		double a = rng.nextFloat()/2.0 + 0.5;
+		return a;
+	}
+
 	// Generate a random number of the specified bit length in the range 2^(bits-1) and 2^bits-1
 	// since small primes are not considered to be secure.
 	public static BigInteger randomBigInteger(int bits) {
@@ -80,8 +135,7 @@ public class Math {
 
 		BigInteger min = BigInteger.ONE.shiftLeft(bits - 1);
 		BigInteger max = BigInteger.ONE.shiftLeft(bits).subtract(BigInteger.ONE);
-		SecureRandom rng = new SecureRandom();
-		
+
 		// Generate a random number in the range [min, max]
 		return min.add(new BigInteger(bits, rng)).mod(max.subtract(min)).add(min);
 
@@ -91,14 +145,12 @@ public class Math {
 	public static BigInteger randomPrime(int bitLength){
 		while (true){
 			BigInteger a = Math.randomBigInteger(bitLength);
-			if (!gcd(a, new BigInteger(SMALL_PRIME_PRODUCT.toString())).equals(BigInteger.ONE)){
-				continue;
-			}
-			if (millerRabinTest(a, 10)){
+			if (isProbablePrime(a, 10)){
 				return a;
 			}
 		}
 	}
+
 	public static BigInteger randomStrongPrime(int bitLength){
 		BigInteger s = randomPrime(bitLength/2);
 		BigInteger t = randomPrime(bitLength/2);
@@ -106,10 +158,10 @@ public class Math {
 		Random rnd = new Random();
 		int i = rnd.nextInt(100);
 		BigInteger r = BigInteger.ONE;
-		while (isPrime == false){
+		while (!isPrime){
 			r = t.multiply(BigInteger.TWO).multiply(BigInteger.valueOf(i)).add(BigInteger.ONE);
 			i ++;
-			if (millerRabinTest(r, 10) == true){
+			if (millerRabinTest(r, 10)){
 				isPrime = true;
 			}
 		}
@@ -117,10 +169,10 @@ public class Math {
 		isPrime = false;
 		int j = rnd.nextInt(100);
 		BigInteger p = BigInteger.ONE;
-		while (isPrime == false){
+		while (!isPrime){
 			p = p_0.add(BigInteger.TWO.multiply(BigInteger.valueOf(j)).multiply(r).multiply(s));
 			j++;
-			if (millerRabinTest(p, 10) == true){
+			if (millerRabinTest(p, 10)){
 				isPrime = true;
 			}
 		}
@@ -143,7 +195,7 @@ public class Math {
 	public static BigInteger gordonStrongPrime(int bitLen) {
 
 		SecureRandom random = new SecureRandom();
-		BigInteger r = BigInteger.ZERO;
+		BigInteger r;
 		BigInteger s = BigInteger.probablePrime(bitLen, random);
 		BigInteger t = BigInteger.probablePrime(bitLen, random);
 		
@@ -162,7 +214,7 @@ public class Math {
 		 BigInteger p0 = BigInteger.valueOf(2).multiply(s.modPow(r.subtract(BigInteger.valueOf(2)), r)).multiply(s).subtract(BigInteger.ONE);
 
 		// // Step 4
-		 BigInteger p = BigInteger.ZERO;
+		 BigInteger p;
 		 int j = 69;
 		 while (true) {
 		 	p = p0.add(BigInteger.valueOf(2).multiply(BigInteger.valueOf(j)).multiply(r).multiply(s));
@@ -179,7 +231,7 @@ public class Math {
 	public static BigInteger randomSecondBigInteger(BigInteger prime1, int bitLength) {
 		/**
 		 * Range là khoảng cách từ min đến max của 1 số n bits
-		 * secondRandomBigInt lớn hơn n * ln2 nếu prime1 < range / 2; ngược lại, prime2 phải nhỏ hơn n * ln2
+		 * secondRandomBigInt lớn hơn n * ln2 nếu prime1 < range / 2; ngược lại, prime2 phải bé hơn n * ln2
 		 */
 		BigInteger range = BigInteger.ONE.shiftLeft(bitLength - 1);
 		BigInteger secondRandomBigInt;
@@ -200,26 +252,19 @@ public class Math {
 	}
 
 	public static BigInteger gcd(BigInteger a, BigInteger b) {
-		// if (a.equals(BigInteger.ZERO))
-		// 	return b;
-		// if (b.equals(BigInteger.ZERO))
-		// 	return a;
-
-		// if (a.equals(b))
-		// 	return a;
-
-		// if (a.compareTo(b) == 1)
-		// 	return gcd(a.subtract(b), b);
-		// return gcd(a, b.subtract(a));
-		if (a.equals(BigInteger.ZERO))
-            return b;
-        return gcd(b.mod(a),a);
+		while (!b.equals(BigInteger.ZERO)) {
+			BigInteger temp = a.mod(b);
+			a = b;
+			b = temp;
+		};
+        return a;
 	}
 
 	static public BigInteger[] gcdExtended(BigInteger a, BigInteger b)
 	{
 		BigInteger x = BigInteger.ZERO, y = BigInteger.ONE;
-		BigInteger lastx = BigInteger.ONE, lasty = BigInteger.ZERO, temp;
+		BigInteger lastx = BigInteger.ONE,
+				lasty = BigInteger.ZERO, temp;
 		while (!b.equals(BigInteger.ZERO))
 		{
 			BigInteger q = a.divide(b);
@@ -241,26 +286,13 @@ public class Math {
 		return new BigInteger[]{a, lastx, lasty};
 	}
 
-	// public static int gcdExtended(int a, int b, int x, int y)
-    // {
-    //     // Base Case
-    //     if (a == 0) {
-    //         x = 0;
-    //         y = 1;
-    //         return b;
-    //     }
-
-    //     int x1 = 1,
-    //         y1 = 1; // To store results of recursive call
-    //     int gcd = gcdExtended(b % a, a, x1, y1);
-
-    //     // Update x and y using results of recursive
-    //     // call
-    //     x = y1 - (b / a) * x1;
-    //     y = x1;
-
-    //     return gcd;
-    // }
+	public static BigInteger modInverse(BigInteger e, BigInteger phi) {
+		BigInteger x = gcdExtended(e,phi)[1];
+		if (x.compareTo(BigInteger.ZERO) < 0){
+			x = x.add(phi);
+		}
+		return x;
+	}
 
 
 	public static BigInteger probableStrongPrime() {
@@ -268,8 +300,25 @@ public class Math {
 		return BigInteger.ONE;
 	}
 
+	public static boolean isProbablePrime(BigInteger n, int k) {
+		if (!n.testBit(0)) {
+			return false;
+		}
+		if (n.compareTo(BigInteger.valueOf(3)) <= 0) {
+			return true;
+		}
+		if (!fermatTestBase(n, BigInteger.valueOf(2))) {
+			return false;
+		}
+		if (gcd(n, SMALL_PRIME_PRODUCT).compareTo(BigInteger.ONE) != 0) {
+			return false;
+		}
+		return millerRabinTest(n, k);
+	}
 
-
+	public static boolean fermatTestBase(BigInteger n, BigInteger a) {
+		return a.modPow(n.subtract(BigInteger.ONE), n).equals(BigInteger.ONE);
+	}
 	// millerRabinTest takes a BigInteger n and an integer k as input and returns true if n is prime and false if n is composite.
 	// @param n: the number to be tested
 	// @param k: the number of times the test is repeated
@@ -279,6 +328,7 @@ public class Math {
 		if (n.compareTo(BigInteger.ONE) <= 0) {
 			return false;
 		}
+
 		if (n.compareTo(BigInteger.valueOf(3)) <= 0) {
 			return true;
 		}
@@ -331,6 +381,7 @@ public class Math {
 
 		return modPow(decryptInput, e, n);
 	}
+
 	
 	public static String decrypt(PrivateKey privateKey, BigInteger encryptNumber) {
 		// ref:
