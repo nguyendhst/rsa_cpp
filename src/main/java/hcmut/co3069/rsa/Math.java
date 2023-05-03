@@ -341,7 +341,7 @@ public class Math {
     // @param n: the number to be tested
     // @param k: the number of times the test is repeated
     // @return true if n is prime and false if n is composite
-    public static boolean millerRabinTest(BigInteger n, int k) {
+    public static boolean millerRabinTest(BigInteger n, BigInteger k) {
         // miller-rabin algorithm
         if (n.compareTo(BigInteger.ONE) <= 0) {
             return false;
@@ -359,7 +359,7 @@ public class Math {
 
         // SecureRandom random = new SecureRandom();
         // Math math = new Math(random);
-        for (int i = 0; i < k; i++) {
+        for (BigInteger i = BigInteger.ZERO; i.compareTo(k) < 0; i = i.add(BigInteger.ONE)) {
             // BigInteger a =
             // math.randomBigInteger(n.subtract(BigInteger.valueOf(2)).intValue());
             BigInteger a = Math.randomBigInteger(2048);
