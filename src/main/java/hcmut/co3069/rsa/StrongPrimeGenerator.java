@@ -7,11 +7,13 @@ public class StrongPrimeGenerator {
     private static final SecureRandom random = new SecureRandom();
 
     public static BigInteger generate(int bitLength, int certainty) {
-        BigInteger prime;
-        do {
-            prime = new BigInteger(bitLength, certainty, random);
-        } while (!isStrongPrime(prime));
-        return prime;
+        //BigInteger prime;
+        //do {
+        //    prime = new BigInteger(bitLength, certainty, random);
+        //} while (!isStrongPrime(prime));
+        //return prime;
+
+		// TODO
     }
 
 	public static boolean isProbablyPrime(BigInteger candidate, int certainty) {
