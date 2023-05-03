@@ -29,10 +29,10 @@ public class RSACryptoSystem {
         BigInteger e;
         do {
             e = new BigInteger(phi.bitLength(), random);
-        } while (e.compareTo(BigInteger.ONE) <= 0 || e.compareTo(phi) >= 0 || !e.gcd(phi).equals(BigInteger.ONE));
+        } while (e.compareTo(BigInteger.ONE) <= 0 || e.compareTo(phi) >= 0 || !Math.gcd(e, phi).equals(BigInteger.ONE));
 
         // Calculate d = e^(-1) mod phi(n)
-        BigInteger d = e.modInverse(phi);
+        BigInteger d = Math.modInverse(e, phi);
 
         publicKey = new PublicKey(n, e);
         privateKey = new PrivateKey(n, d);
