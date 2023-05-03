@@ -3,15 +3,34 @@ package hcmut.co3069.rsa;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 public class StrongPrimeGenerator {
-    
+	private static final int PRIME_CERTAINTY = 100;
     private static final SecureRandom random = new SecureRandom();
 
-    public static BigInteger generateStrongPrime(int bitLength, int certainty) {
+    public static BigInteger generate(int bitLength, int certainty) {
         BigInteger prime;
         do {
             prime = new BigInteger(bitLength, certainty, random);
         } while (!isStrongPrime(prime));
         return prime;
+    }
+
+	public static boolean isProbablyPrime(BigInteger candidate, int certainty) {
+        if (candidate.compareTo(BigInteger.TWO) < 0) {
+            return false;
+        }
+
+        for (int i = 0; i < certainty; i++) {
+            BigInteger a;
+            do {
+                a = new BigInteger(candidate.bitLength(), new SecureRandom());
+            } while (a.compareTo(BigInteger.ONE) <= 0 || a.compareTo(candidate) >= 0);
+
+            if (!Math.millerRabinTest(candidate, a)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static boolean isStrongPrime(BigInteger prime) {
