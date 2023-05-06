@@ -2,100 +2,64 @@ package hcmut.co3069.rsa;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
-public class PrivateKey implements RSAPrivateKey {
+public class PrivateKey implements Key {
 
-    private BigInteger modulus;
-    private BigInteger privateExponent;
+	private BigInteger modulus;
+	private BigInteger privateExponent;
 
-    public PrivateKey(BigInteger modulus, BigInteger privateExponent) {
-        this.modulus = modulus;
-        this.privateExponent = privateExponent;
-    }
+	public PrivateKey(BigInteger modulus, BigInteger privateExponent) {
+		this.modulus = modulus;
+		this.privateExponent = privateExponent;
+	}
 
-    // public PrivateKey(BigInteger p, BigInteger q) {
-    // BigInteger n = p.multiply(q);
-    // SecureRandom random = new SecureRandom();
-    // BigInteger phi =
-    // p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
-    // int te = random.nextInt(phi.intValue());
-    // BigInteger e = new BigInteger(n.bitLength() / 2, random);
-    // while (!Math.gcd(phi, e).equals(BigInteger.ONE) && e.compareTo(phi) < 0) {
-    // e = e.add(BigInteger.ONE);
-    // }
-    // // this.d = Math.modInverse(e,phi);
-    // // this.publicKey = new PublicKey(n, e);
-    // this.primes = new ArrayList<BigInteger>();
-    // this.primes.add(p);
-    // this.primes.add(q);
-    // }
+	public BigInteger getModulus() {
+		return modulus;
+	}
 
-    @Override
-    public BigInteger getModulus() {
-        return modulus;
-    }
+	public BigInteger getPrivateExponent() {
+		return privateExponent;
+	}
 
-    @Override
-    public BigInteger getPrivateExponent() {
-        return privateExponent;
-    }
+	@Override
+	public String getAlgorithm() {
+		return "RSA";
+	}
 
-    @Override
-    public String getAlgorithm() {
-        return "RSA";
-    }
+	@Override
+	public String getFormat() {
+		return "PKCS#8";
+	}
 
-    @Override
-    public String getFormat() {
-        return "PKCS#8";
-    }
-
-    @Override
-    public byte[] getEncoded() {
+	@Override
+	public byte[] getEncoded() {
 		try {
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            RSAPrivateKeySpec prvKeySpec = new RSAPrivateKeySpec(modulus, privateExponent);
-            return keyFactory.generatePrivate(prvKeySpec).getEncoded();
+			RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(modulus, privateExponent);
+			KeyFactory keyFactory = KeyFactory.getInstance(getAlgorithm());
+			RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+			return privateKey.getEncoded();
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			throw new RuntimeException("Failed to encode private key", e);
+		}
+	}
+
+	public void parsePrivateKey(byte[] encoded) {
+		try {
+			KeyFactory kf = KeyFactory.getInstance("RSA");
+			RSAPrivateKey privKey = (RSAPrivateKey) kf.generatePrivate(new PKCS8EncodedKeySpec(encoded));
+			this.modulus = privKey.getModulus();
+			this.privateExponent = privKey.getPrivateExponent();
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 			e.printStackTrace();
-			return null;
 		}
-    }
-
-    //// prime factors of n
-    // private ArrayList<BigInteger> primes;
-    //// private exponent
-    // public BigInteger d;
-    // public BigInteger n;
-
-    // public void GenerateKey(SecureRandom random, int bits) {
-    // BigInteger p = BigInteger.probablePrime(bits, random);
-    // BigInteger q = BigInteger.probablePrime(bits, random);
-    // PrivateKey a = new PrivateKey(p, q);
-    // this.primes = a.primes;
-    // this.publicKey = a.publicKey;
-    // this.d = a.d;
-    // }
-
-    // public BigInteger encrypt() {
-    // return BigInteger.ONE;
-    // }
-
-    // public BigInteger decrypt() {
-    // return BigInteger.ONE;
-    // }
-
-    //// public BigInteger chuky(){
-    ////
-    //// }
-    // public PublicKey getPublicKey() {
-    // return publicKey;
-    // }
+	}
 }
