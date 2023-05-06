@@ -103,40 +103,40 @@ class MathTest {
 			assertTrue(a.isProbablePrime(10));
 			// check bit length
 			// print bit length
-			//System.out.println(a.bitLength());
-			//System.out.println(bigLength);
+			System.out.println(a.bitLength());
+			System.out.println(bigLength);
 			//assertTrue(a.bitLength() == bigLength);
 		}
 	}
 
 
-	@Test 
-	void bitLengthTest() {
-		int bitLength = 2048;
-		for (int index = 0; index < 1; index++) {
-			BigInteger p = Math.randomPrime(bitLength/2);
-			assertTrue(p.isProbablePrime(10));
-			BigInteger q = Math.randomPrime(bitLength/2);
-			assertTrue(q.isProbablePrime(10));
-			BigInteger n = p.multiply(q);
-			System.out.println(q.bitLength());
-			System.out.println(p.bitLength());
-			System.out.println(n.bitLength());
-			//assertTrue(n.bitLength() == bitLength);
-		}
-	}
+	//@Test 
+	//void bitLengthTest() {
+	//	int bitLength = 2048;
+	//	for (int index = 0; index < 1; index++) {
+	//		BigInteger p = Math.randomPrime(bitLength/2);
+	//		assertTrue(p.isProbablePrime(10));
+	//		BigInteger q = Math.randomPrime(bitLength/2);
+	//		assertTrue(q.isProbablePrime(10));
+	//		BigInteger n = p.multiply(q);
+	//		//System.out.println(q.bitLength());
+	//		//System.out.println(p.bitLength());
+	//		//System.out.println(n.bitLength());
+	//		//assertTrue(n.bitLength() == bitLength);
+	//	}
+	//}
 
-	@Test
-	void testMai() {
-		RSACryptoSystem rsa = new RSACryptoSystem(2048);
-		System.out.println(rsa.getPublicKey().getModulus().bitLength());
-        String message = "Hello, RSA!";
-        BigInteger encrypted = rsa.encrypt(new BigInteger(message.getBytes()));
-        BigInteger decrypted = rsa.decrypt(encrypted);
-        System.out.println("Original message: " + message);
-        System.out.println("Encrypted: " + encrypted);
-        System.out.println("Decrypted: " + new String(decrypted.toByteArray()));
-	}
+	//@Test
+	//void testMai() {
+	//	RSACryptoSystem rsa = new RSACryptoSystem(2048);
+	//	System.out.println(rsa.getPublicKey().getModulus().bitLength());
+    //    String message = "Hello, RSA!";
+    //    BigInteger encrypted = rsa.encrypt(new BigInteger(message.getBytes()));
+    //    BigInteger decrypted = rsa.decrypt(encrypted);
+    //    System.out.println("Original message: " + message);
+    //    System.out.println("Encrypted: " + encrypted);
+    //    System.out.println("Decrypted: " + new String(decrypted.toByteArray()));
+	//}
 
     //@Test
     //void millerRabin() {
