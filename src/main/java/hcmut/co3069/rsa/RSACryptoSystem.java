@@ -1,9 +1,16 @@
 package hcmut.co3069.rsa;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.math.BigInteger;
+import java.nio.file.Path;
 import java.security.SecureRandom;
+import java.util.Scanner;
+
+import javax.crypto.SecretKey;
 
 public class RSACryptoSystem {
 
@@ -16,8 +23,8 @@ public class RSACryptoSystem {
         bitLength = BigInteger.valueOf(keyBitLength);
 
         // Generate p and q, two distinct strong primes
-        //BigInteger p = StrongPrimeGenerator.generate(keyBitLength / 2);
-        //BigInteger q = StrongPrimeGenerator.generate(keyBitLength / 2);
+        // BigInteger p = StrongPrimeGenerator.generate(keyBitLength / 2);
+        // BigInteger q = StrongPrimeGenerator.generate(keyBitLength / 2);
         BigInteger p = Math.randomPrime(keyBitLength / 2);
         BigInteger q = Math.randomPrime(keyBitLength / 2);
 
@@ -94,145 +101,191 @@ public class RSACryptoSystem {
     }
 
     public static void main(String[] args) {
-        RSACryptoSystem rsa = new RSACryptoSystem(1024);
+        RSACryptoSystem rsa = new RSACryptoSystem(2048);
         rsa.generateKeyFiles();
 
         /**
          * Example 1: Encrypt and decrypt a message
          */
 
-        // String message = "Hello, RSA!";
-        // BigInteger encrypted = rsa.encrypt(new BigInteger(message.getBytes()));
-        // BigInteger decrypted = rsa.decrypt(encrypted);
-        // System.out.println("Original message: " + message);
-        // System.out.println("Encrypted: " + encrypted);
-        // System.out.println("Decrypted: " + new String(decrypted.toByteArray()));
-
+        String message = "Hello, RSA!";
+        BigInteger encrypted = rsa.encrypt(new BigInteger(message.getBytes()));
+        BigInteger decrypted = rsa.decrypt(encrypted);
+        System.out.println("Original message: " + message);
+        System.out.println("Encrypted: " + encrypted);
+        System.out.println("Decrypted: " + new String(decrypted.toByteArray()));
 
         /**
          * Example 2: Encrypt and decrypt a file
          */
 
-        // String inputFileName = "input.txt";
-        // String encryptedFileName = "encrypted.txt";
-        // String decryptedFileName = "decrypted.txt";
+        String inputFileName = "input.txt";
+        String encryptedFileName = "encrypted.txt";
+        String decryptedFileName = "decrypted.txt";
 
-        //// Read input file
-        // try (
-        // FileInputStream fis = new FileInputStream(inputFileName);
-        // FileOutputStream fos = new FileOutputStream(encryptedFileName);) {
-        // BigInteger message = new BigInteger(fis.readAllBytes());
-        // BigInteger encrypted = rsa.encrypt(message);
-        // fos.write(encrypted.toByteArray());
-        // } catch (Exception e) {
-        // System.out.println("Error reading input file");
-        // e.printStackTrace();
-        // }
+        // Read input file
+        try (
+                FileInputStream fis = new FileInputStream(inputFileName);
+                FileOutputStream fos = new FileOutputStream(encryptedFileName);) {
+            BigInteger message = new BigInteger(fis.readAllBytes());
+            BigInteger encrypted = rsa.encrypt(message);
+            fos.write(encrypted.toByteArray());
+        } catch (Exception e) {
+            System.out.println("Error reading input file");
+            e.printStackTrace();
+        }
 
-        //// Read encrypted file
-        // try (
-        // FileInputStream fis = new FileInputStream(encryptedFileName);
-        // FileOutputStream fos = new FileOutputStream(decryptedFileName);) {
-        // BigInteger encrypted = new BigInteger(fis.readAllBytes());
-        // BigInteger decrypted = rsa.decrypt(encrypted);
-        // fos.write(decrypted.toByteArray());
-        // } catch (Exception e) {
-        // System.out.println("Error reading encrypted file");
-        // e.printStackTrace();
-        // }
+        // Read encrypted file
+        try (
+                FileInputStream fis = new FileInputStream(encryptedFileName);
+                FileOutputStream fos = new FileOutputStream(decryptedFileName);) {
+            BigInteger encrypted = new BigInteger(fis.readAllBytes());
+            BigInteger decrypted = rsa.decrypt(encrypted);
+            fos.write(decrypted.toByteArray());
+        } catch (Exception e) {
+            System.out.println("Error reading encrypted file");
+            e.printStackTrace();
 
+        }
+        // Print content of input file
+        try (BufferedReader br = new BufferedReader(new FileReader(inputFileName))) {
+            String line;
+            System.out.println("Content of input file:");
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading input file");
+            e.printStackTrace();
+        }
+
+        // Print content of decrypted file
+        try (BufferedReader br = new BufferedReader(new FileReader(decryptedFileName))) {
+            String line;
+            System.out.println("Decrypted file:");
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading input file");
+            e.printStackTrace();
+        }
         /**
          * Example 3: Encrypt and decrypt a file using public and private key files
          */
 
-        // String pubKeyName = "public.der";
-        // String prvKeyName = "private.der";
-        // String inputFileName = "input.txt";
-        // String encryptedFileName = "encrypted.bin";
-        // String decryptedFileName = "decrypted.txt";
+        String pubKeyName = "public.der";
+        String prvKeyName = "private.der";
+        String inputFileName = "input.txt";
+        String encryptedFileName = "encrypted.bin";
+        String decryptedFileName = "decrypted.txt";
 
-        //// Read public key file
-        // try {
-        // FileInputStream fis = new FileInputStream(pubKeyName);
-        // byte[] pubKeyBytes = fis.readAllBytes();
-        // fis.close();
+        // Read public key file
+        try {
+            FileInputStream fis = new FileInputStream(pubKeyName);
+            byte[] pubKeyBytes = fis.readAllBytes();
+            fis.close();
 
-        // rsa.getPublicKey().parsePublicKey(pubKeyBytes);
-        // } catch (Exception e) {
-        // System.out.println("Error reading public key file");
-        // e.printStackTrace();
-        // }
+            rsa.getPublicKey().parsePublicKey(pubKeyBytes);
+        } catch (Exception e) {
+            System.out.println("Error reading public key file");
+            e.printStackTrace();
+        }
 
-        //// Read private key file
-        // try {
-        // FileInputStream fis = new FileInputStream(prvKeyName);
-        // byte[] prvKeyBytes = fis.readAllBytes();
-        // fis.close();
+        // Read private key file
+        try {
+            FileInputStream fis = new FileInputStream(prvKeyName);
+            byte[] prvKeyBytes = fis.readAllBytes();
+            fis.close();
 
-        // rsa.getPrivateKey().parsePrivateKey(prvKeyBytes);
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
+            rsa.getPrivateKey().parsePrivateKey(prvKeyBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        //// Read input file
-        // try (
-        // FileInputStream fis = new FileInputStream(inputFileName);
-        // FileOutputStream fos = new FileOutputStream(encryptedFileName);) {
-        // BigInteger message = new BigInteger(fis.readAllBytes());
-        // BigInteger encrypted = rsa.encrypt(message);
-        // fos.write(encrypted.toByteArray());
-        // } catch (Exception e) {
-        // System.out.println("Error reading input file");
-        // e.printStackTrace();
-        // }
+        // Read input file
+        try (
+                FileInputStream fis = new FileInputStream(inputFileName);
+                FileOutputStream fos = new FileOutputStream(encryptedFileName);) {
+            BigInteger message = new BigInteger(fis.readAllBytes());
+            BigInteger encrypted = rsa.encrypt(message);
+            fos.write(encrypted.toByteArray());
+        } catch (Exception e) {
+            System.out.println("Error reading input file");
+            e.printStackTrace();
+        }
 
-        //// Read encrypted file
-        // try (
-        // FileInputStream fis = new FileInputStream(encryptedFileName);
-        // FileOutputStream fos = new FileOutputStream(decryptedFileName);) {
-        // BigInteger encrypted = new BigInteger(fis.readAllBytes());
-        // BigInteger decrypted = rsa.decrypt(encrypted);
-        // fos.write(decrypted.toByteArray());
-        // } catch (Exception e) {
-        // System.out.println("Error reading encrypted file");
-        // e.printStackTrace();
-        // }
+        // Read encrypted file
+        try (
+                FileInputStream fis = new FileInputStream(encryptedFileName);
+                FileOutputStream fos = new FileOutputStream(decryptedFileName);) {
+            BigInteger encrypted = new BigInteger(fis.readAllBytes());
+            BigInteger decrypted = rsa.decrypt(encrypted);
+            fos.write(decrypted.toByteArray());
+        } catch (Exception e) {
+            System.out.println("Error reading encrypted file");
+            e.printStackTrace();
+        }
 
+        // Print content of input file
+        try (BufferedReader br = new BufferedReader(new FileReader(inputFileName))) {
+            String line;
+            System.out.println("Content of input file:");
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading input file");
+            e.printStackTrace();
+        }
+
+        // Print content of decrypted file
+        try (BufferedReader br = new BufferedReader(new FileReader(decryptedFileName))) {
+            String line;
+            System.out.println("Decrypted file:");
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading input file");
+            e.printStackTrace();
+        }
 
         /**
          * Example 4: Encrypt and decrypt a file using AES RSA hybrid cryptosystem
          */
 
-        //HybridCryptoSystem hybridCryptoSystem = new HybridCryptoSystem(2048);
-        //SecretKey aesKey = null;
-        //try {
-        //    aesKey = hybridCryptoSystem.generateAESKey(128); // Generate a 128-bit AES key
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //}
+        HybridCryptoSystem hybridCryptoSystem = new HybridCryptoSystem(2048);
+        SecretKey aesKey = null;
+        try {
+            aesKey = hybridCryptoSystem.generateAESKey(128); // Generate a 128-bit AES key
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        //// Encrypt the AES key
-        //byte[] encryptedAESKey = hybridCryptoSystem.encryptAESKey(aesKey);
-        //System.out.println(encryptedAESKey.length);
+        // Encrypt the AES key
+        byte[] encryptedAESKey = hybridCryptoSystem.encryptAESKey(aesKey);
+        System.out.println(encryptedAESKey.length);
 
-        //// Encrypt the file
-        //Path inputFile = Path.of("input.txt");
-        //Path encryptedFile = Path.of("encrypted.bin");
-        //try {
-        //    hybridCryptoSystem.encryptFile(inputFile, encryptedFile, aesKey);
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //}
+        // Encrypt the file
+        Path inputFile = Path.of("1GB.bin");
+        Path encryptedFile = Path.of("encrypted.bin");
+        try {
+            hybridCryptoSystem.encryptFile(inputFile, encryptedFile, aesKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        //// Decrypt the AES key
-        //SecretKey decryptedAESKey = hybridCryptoSystem.decryptAESKey(encryptedAESKey);
+        // Decrypt the AES key
+        SecretKey decryptedAESKey = hybridCryptoSystem.decryptAESKey(encryptedAESKey);
 
-        //// Decrypt the file
-        //Path decryptedFile = Path.of("decrypted.txt");
-        //try {
-        //    hybridCryptoSystem.decryptFile(encryptedFile, decryptedFile, decryptedAESKey);
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //}
+        // Decrypt the file
+        Path decryptedFile = Path.of("decrypted.bin");
+        try {
+            hybridCryptoSystem.decryptFile(encryptedFile, decryptedFile,
+                    decryptedAESKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
