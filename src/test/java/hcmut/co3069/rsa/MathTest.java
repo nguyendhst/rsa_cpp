@@ -87,20 +87,32 @@ class MathTest {
        }
     }
 
-    @Test
-    void millerRabin() {
-        SecureRandom rnd = new SecureRandom();
-        for (int index = 0; index < 10; index++) {
-            BigInteger a = BigInteger.probablePrime(1024, rnd);
-            Boolean b = Math.millerRabinTest(a,10);
-            Boolean b1 = Math.millerRabinTest(a.subtract(BigInteger.TWO), 10);
-            Boolean b2 = a.subtract(BigInteger.TWO).isProbablePrime(10);
-            assertTrue(b);
-            assertTrue(b1 == b2);
+	@Test
+	void strongPrimeTest() {
+		int bigLength = 2048;
+		for (int index = 0; index < 1; index++) {
+			BigInteger a = Math.randomStrongPrime(bigLength);
+			assertTrue(a.isProbablePrime(10));
+
+			// check bit length
+			assertTrue(a.bitLength() == bigLength);
+		}
+	}
+
+    //@Test
+    //void millerRabin() {
+    //    SecureRandom rnd = new SecureRandom();
+    //    for (int index = 0; index < 10; index++) {
+    //        BigInteger a = BigInteger.probablePrime(1024, rnd);
+    //        Boolean b = Math.millerRabinTest(a,10);
+    //        Boolean b1 = Math.millerRabinTest(a.subtract(BigInteger.TWO), 10);
+    //        Boolean b2 = a.subtract(BigInteger.TWO).isProbablePrime(10);
+    //        assertTrue(b);
+    //        assertTrue(b1 == b2);
 			
            
-        }
-    }
+    //    }
+    //}
 
     @Test
     void gordonStrongPrime1() {

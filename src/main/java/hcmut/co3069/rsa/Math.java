@@ -54,21 +54,18 @@ public class Math {
         return false;
     }
 
-    // modPow takes a base, exponent and modulus and returns base^exponent % modulus
-    // modPow is a function that calculates the remainder of the division of a
-    // number by another number
-    // @phudang
+	/**
+	* Thuật toán như sau:
+	* - Nếu số mũ là lẻ thì result = result * base % modulus
+	* - Nếu số mũ là chẵn thì base = base * base % modulus
+	* - Lấy số mũ chia 2
+	* Khi số mũ bằng 0 thì dừng
+	* Thuật toán có dạng chứng minh như sau:
+	* base ^ exponent % modulus = (((base ^ 2) ^ (exponent // 2) % modulus)* (base
+	* ^ (exponent % 2) % modulus)) mod modulus
+	*/
     static BigInteger modPow(BigInteger base, BigInteger exponent, BigInteger modulus) {
-        /*
-         * Thuật toán như sau:
-         * - Nếu số mũ là lẻ thì result = result * base % modulus
-         * - Nếu số mũ là chẵn thì base = base * base % modulus
-         * - Lấy số mũ chia 2
-         * Khi số mũ bằng 0 thì dừng
-         * Thuật toán có dạng chứng minh như sau:
-         * base ^ exponent % modulus = (((base ^ 2) ^ (exponent // 2) % modulus)* (base
-         * ^ (exponent % 2) % modulus)) mod modulus
-         */
+   
         BigInteger result = BigInteger.ONE;
 
         while (exponent.compareTo(BigInteger.ZERO) > 0) {
@@ -176,7 +173,7 @@ public class Math {
         while (!isPrime) {
             r = t.multiply(BigInteger.TWO).multiply(BigInteger.valueOf(i)).add(BigInteger.ONE);
             i++;
-            if (millerRabinTest(r, 10)) {
+            if (millerRabinTest(r , BigInteger.valueOf(i))) {
                 isPrime = true;
             }
         }
@@ -188,7 +185,7 @@ public class Math {
         while (!isPrime) {
             p = p_0.add(BigInteger.TWO.multiply(BigInteger.valueOf(j)).multiply(r).multiply(s));
             j++;
-            if (millerRabinTest(p, 10)) {
+            if (millerRabinTest(p, BigInteger.valueOf(j))) {
                 isPrime = true;
             }
         }
@@ -214,8 +211,10 @@ public class Math {
 
         SecureRandom random = new SecureRandom();
         BigInteger r;
-        BigInteger s = BigInteger.probablePrime(bitLen, random);
-        BigInteger t = BigInteger.probablePrime(bitLen, random);
+        //BigInteger s = BigInteger.probablePrime(bitLen, random);
+        //BigInteger t = BigInteger.probablePrime(bitLen, random);
+		BigInteger s = randomPrime(bitLen);
+		BigInteger t = randomPrime(bitLen);
 
         // Step 2
         int i = 69;
@@ -329,7 +328,7 @@ public class Math {
         if (gcd(n, SMALL_PRIME_PRODUCT).compareTo(BigInteger.ONE) != 0) {
             return false;
         }
-        return millerRabinTest(n, k);
+        return millerRabinTest(n, BigInteger.valueOf(k));
     }
 
     public static boolean fermatTestBase(BigInteger n, BigInteger a) {
@@ -386,67 +385,33 @@ public class Math {
         }
         return true;
     }
-
-    public static BigInteger encrypt(PublicKey publicKey, String msg) {
-        // ref:
-        // https://crypto.stackexchange.com/questions/53219/how-to-encrypt-plain-message-with-rsa
-
-        // BigInteger modPow(BigInteger base,BigInteger exponent,BigInteger modulus);
-        byte[] msgBytes = msg.getBytes();
-        BigInteger e = publicKey.e;
-        BigInteger n = publicKey.n;
-        BigInteger decryptInput = new BigInteger(msgBytes);
-
-        return modPow(decryptInput, e, n);
-    }
-
-    public static String decrypt(PrivateKey privateKey, BigInteger encryptNumber) {
-        // ref:
-        // https://crypto.stackexchange.com/questions/53219/how-to-encrypt-plain-message-with-rsa
-
-        // BigInteger modPow(BigInteger base,BigInteger exponent,BigInteger modulus);
-        BigInteger d = privateKey.d;
-        BigInteger n = privateKey.n;
-
-        byte[] decryptBytes = modPow(encryptNumber, d, n).toByteArray();
-        String decryptText = new String(decryptBytes);
-
-        return decryptText;
-    }
-
 }
 
-// class StrongPrimeGenerator {
-// private final int nBits;
-// private final SecureRandom random;
+//    public static BigInteger encrypt(PublicKey publicKey, String msg) {
+//        // ref:
+//        // https://crypto.stackexchange.com/questions/53219/how-to-encrypt-plain-message-with-rsa
 
-// public StrongPrimeGenerator(int nBits) {
-// this.nBits = nBits;
-// this.random = new SecureRandom();
-// }
+//        // BigInteger modPow(BigInteger base,BigInteger exponent,BigInteger modulus);
+//        byte[] msgBytes = msg.getBytes();
+//        BigInteger e = publicKey.e;
+//        BigInteger n = publicKey.n;
+//        BigInteger decryptInput = new BigInteger(msgBytes);
 
-// public static void main(String[] args) {
-// StrongPrimeGenerator generator = new StrongPrimeGenerator(512);
-// BigInteger[] strongPrimes = generator.generateTwoStrongPrimes();
-// System.out.println("Strong prime 1: " + strongPrimes[0]);
-// System.out.println("Strong prime 2: " + strongPrimes[1]);
-// }
+//        return modPow(decryptInput, e, n);
+//    }
 
-// public BigInteger[] generateTwoStrongPrimes() {
-// BigInteger[] strongPrimes = new BigInteger[2];
-// for (int i = 0; i < 2; i++) {
-// BigInteger prime;
-// do {
-// prime = new BigInteger(nBits, 100, random);
-// } while (!isStrongPrime(prime));
-// strongPrimes[i] = prime;
-// }
-// return strongPrimes;
-// }
+//    public static String decrypt(PrivateKey privateKey, BigInteger encryptNumber) {
+//        // ref:
+//        // https://crypto.stackexchange.com/questions/53219/how-to-encrypt-plain-message-with-rsa
 
-// private boolean isStrongPrime(BigInteger prime) {
-// BigInteger pMinusOneDividedByTwo =
-// prime.subtract(BigInteger.ONE).divide(BigInteger.valueOf(2));
-// return pMinusOneDividedByTwo.isProbablePrime(100);
-// }
-// }
+//        // BigInteger modPow(BigInteger base,BigInteger exponent,BigInteger modulus);
+//        BigInteger d = privateKey.d;
+//        BigInteger n = privateKey.n;
+
+//        byte[] decryptBytes = modPow(encryptNumber, d, n).toByteArray();
+//        String decryptText = new String(decryptBytes);
+
+//        return decryptText;
+//    }
+
+//}

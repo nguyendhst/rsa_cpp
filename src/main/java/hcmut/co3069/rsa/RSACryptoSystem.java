@@ -16,8 +16,8 @@ public class RSACryptoSystem {
         bitLength = BigInteger.valueOf(keyBitLength);
 
         // Generate p and q, two distinct strong primes
-        BigInteger p = StrongPrimeGenerator.generate(keyBitLength / 2, 100);
-        BigInteger q = StrongPrimeGenerator.generate(keyBitLength / 2, 100);
+        BigInteger p = StrongPrimeGenerator.generate(keyBitLength / 2);
+        BigInteger q = StrongPrimeGenerator.generate(keyBitLength / 2);
 
         // Calculate n = p * q
         BigInteger n = p.multiply(q);
