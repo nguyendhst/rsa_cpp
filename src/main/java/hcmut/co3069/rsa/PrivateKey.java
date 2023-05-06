@@ -2,8 +2,13 @@ package hcmut.co3069.rsa;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 
 public class PrivateKey implements RSAPrivateKey {
 
@@ -54,8 +59,14 @@ public class PrivateKey implements RSAPrivateKey {
 
     @Override
     public byte[] getEncoded() {
-        // TODO
-        return null;
+		try {
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            RSAPrivateKeySpec prvKeySpec = new RSAPrivateKeySpec(modulus, privateExponent);
+            return keyFactory.generatePrivate(prvKeySpec).getEncoded();
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			e.printStackTrace();
+			return null;
+		}
     }
 
     //// prime factors of n

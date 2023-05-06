@@ -29,7 +29,7 @@ public class StrongPrimeGenerator {
         do {
             strongPrimeCandidate = p.add(BigInteger.valueOf(2 * i).multiply(p1).multiply(p2));
             i++;
-        } while (!isProbablyPrime(strongPrimeCandidate, PRIME_CERTAINTY));
+        } while (!Math.isProbablePrime(strongPrimeCandidate, PRIME_CERTAINTY));
 
         return strongPrimeCandidate;
     }

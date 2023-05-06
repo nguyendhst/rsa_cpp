@@ -111,14 +111,18 @@ public class Math {
 
     public static BigInteger randomRange(BigInteger min, BigInteger max) {
         BigInteger range = max.subtract(min);
-        int len = range.bitLength();
-        BigInteger res = new BigInteger(len, rng);
-        BigInteger result = new BigInteger(len, rng);
-        while (result.compareTo(range) >= 0) {
-            result = new BigInteger(len, rng);
-        }
-        result = result.add(min);
-        return result;
+        if (range.compareTo(BigInteger.ZERO) < 0) {
+			throw new ArithmeticException("Invalid range: [" + min + "," + max + "]");
+		}
+		if (range.compareTo(BigInteger.ZERO) == 0) {
+			return min;
+		}
+		int bitLength = range.bitLength();
+		BigInteger a;
+		do {
+			a = new BigInteger(bitLength, rng);
+		} while (a.compareTo(range) >= 0);
+		return a.add(min);
     }
 
     private static double GenerateRelativeSize() {
@@ -129,29 +133,13 @@ public class Math {
     // Generate a random number of the specified bit length in the range 2^(bits-1)
     // and 2^bits-1
     // since small primes are not considered to be secure.
-    public static BigInteger randomBigInteger(int bits) {
-        if (bits < 2) {
+    public static BigInteger randomBigInteger(int bitLength) {
+        if (bitLength < 2) {
             throw new ArithmeticException("Prime size must be at least 2 bits");
         }
-        // The generation of a pseudorandom number with n-bits means the random number
-        // is in the range 0 and 2^n-1 (inclusive).
-        // Requirements:
-        // - Unpredictable
-        // - No duplicates
-        // - Uniformly distributed
-
-        // Generate a random number of the specified bit length in the range 2^(bits-1)
-        // and 2^bits-1
-        // since small primes are not considered to be secure.
-
-        BigInteger min = BigInteger.ONE.shiftLeft(bits - 1);
-        BigInteger max = BigInteger.ONE.shiftLeft(bits).subtract(BigInteger.ONE);
-
-        // Generate a random number in the range [min, max]
-        return min.add(new BigInteger(bits, rng)).mod(max.subtract(min)).add(min);
-
-        // return new BigInteger(bits, new SecureRandom());
-
+		BigInteger min = BigInteger.ONE.shiftLeft(bitLength - 1);
+		BigInteger max = BigInteger.ONE.shiftLeft(bitLength).subtract(BigInteger.ONE);
+		return randomRange(min, max);
     }
 
     public static BigInteger randomPrime(int bitLength) {
@@ -167,7 +155,7 @@ public class Math {
         BigInteger s = randomPrime(bitLength / 2);
         BigInteger t = randomPrime(bitLength / 2);
         boolean isPrime = false;
-        Random rnd = new Random();
+        Random rnd = new SecureRandom();
         int i = rnd.nextInt(100);
         BigInteger r = BigInteger.ONE;
         while (!isPrime) {
@@ -385,6 +373,53 @@ public class Math {
         }
         return true;
     }
+
+	public static BigInteger maurerAlgorithm(int bitLength) {
+		if (bitLength < 2) {
+			throw new IllegalArgumentException("Bit length must be at least 2");
+		}
+	
+		if (bitLength == 2) {
+			return BigInteger.valueOf(3);
+		}
+	
+		// Generate a random prime with bit length `bitLength / 2 + 1`
+		BigInteger q = new BigInteger(bitLength / 2 + 1, 100, new SecureRandom());
+	
+		// Calculate I = 2^(bitLength - 2)
+		BigInteger I = BigInteger.valueOf(2).pow(bitLength - 2);
+	
+		while (true) {
+			// Generate a random integer R, with 1 < R < I
+			BigInteger R = randomBigInteger(BigInteger.valueOf(2), I.subtract(BigInteger.ONE));
+			//BigInteger R = randomRange(BigInteger.valueOf(2), I.subtract(BigInteger.ONE));
+	
+			// Calculate n = 2Rq + 1
+			BigInteger n = R.multiply(q).multiply(BigInteger.valueOf(2)).add(BigInteger.ONE);
+	
+			// Check if n is prime
+			//if (isPrime(n, 100)) {
+			//	return n;
+			//}
+			if (isProbablePrime(n, 100)) {
+				return n;
+			}
+		}
+
+	}
+	public static BigInteger randomBigInteger(BigInteger min, BigInteger max) {
+		SecureRandom random = new SecureRandom();
+		BigInteger range = max.subtract(min).add(BigInteger.ONE);
+		int bitLength = range.bitLength();
+		BigInteger randomBigInt;
+	
+		do {
+			randomBigInt = new BigInteger(bitLength, random);
+		} while (randomBigInt.compareTo(range) >= 0);
+	
+		return randomBigInt.add(min);
+	}
+	
 }
 
 //    public static BigInteger encrypt(PublicKey publicKey, String msg) {

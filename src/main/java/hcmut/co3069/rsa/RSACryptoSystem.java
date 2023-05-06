@@ -1,7 +1,14 @@
 package hcmut.co3069.rsa;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.math.BigInteger;
+import java.security.KeyFactory;
 import java.security.SecureRandom;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+
 import hcmut.co3069.rsa.Math;
 import hcmut.co3069.rsa.*;
 
@@ -18,6 +25,7 @@ public class RSACryptoSystem {
         // Generate p and q, two distinct strong primes
         BigInteger p = StrongPrimeGenerator.generate(keyBitLength / 2);
         BigInteger q = StrongPrimeGenerator.generate(keyBitLength / 2);
+
 
         // Calculate n = p * q
         BigInteger n = p.multiply(q);
@@ -46,6 +54,43 @@ public class RSACryptoSystem {
         return Math.modPow(encryptedMessage, privateKey.getPrivateExponent(), privateKey.getModulus());
     }
 
+	public void generateKeyFiles() {
+		System.out.println("Generating public and private keys...");
+
+		// Write to file
+		String pubKeyFile = "public.der";
+		try {
+			// if file doesnt exists, then create it
+			File file = new File(pubKeyFile);
+			if (!file.exists()) {
+				file.createNewFile();
+				// print file path
+			}
+
+			FileOutputStream fos = new FileOutputStream(pubKeyFile);
+			fos.write(publicKey.getEncoded());
+			fos.close();
+		} catch (Exception e) {
+			System.out.println("Error writing public key to file");
+			e.printStackTrace();
+		}
+
+		String prvKeyFile = "private.der";
+		try {
+
+			File file = new File(prvKeyFile);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			FileOutputStream fos = new FileOutputStream(prvKeyFile);
+			fos.write(privateKey.getEncoded());
+			fos.close();
+		} catch (Exception e) {
+			System.out.println("Error writing private key to file");
+			e.printStackTrace();
+		}
+	}
+
     public PublicKey getPublicKey() {
         return publicKey;
     }
@@ -56,11 +101,87 @@ public class RSACryptoSystem {
 
     public static void main(String[] args) {
         RSACryptoSystem rsa = new RSACryptoSystem(1024);
-        String message = "Hello, RSA!";
-        BigInteger encrypted = rsa.encrypt(new BigInteger(message.getBytes()));
-        BigInteger decrypted = rsa.decrypt(encrypted);
-        System.out.println("Original message: " + message);
-        System.out.println("Encrypted: " + encrypted);
-        System.out.println("Decrypted: " + new String(decrypted.toByteArray()));
+		rsa.generateKeyFiles();
+        //String message = "Hello, RSA!";
+        //BigInteger encrypted = rsa.encrypt(new BigInteger(message.getBytes()));
+        //BigInteger decrypted = rsa.decrypt(encrypted);
+        //System.out.println("Original message: " + message);
+        //System.out.println("Encrypted: " + encrypted);
+        //System.out.println("Decrypted: " + new String(decrypted.toByteArray()));
+
+
+		String inputFileName = "input.txt";
+		String encryptedFileName = "encrypted.txt";
+		String decryptedFileName = "decrypted.txt";
+		String pubKey = "public.der";
+		PublicKey pubKeyObj = null;
+		String prvKey = "private.der";
+		PrivateKey prvKeyObj = null;
+
+		// Read public key
+		byte[] pubKeyBytes = null;
+		try {
+			File file = new File(pubKey);
+			FileInputStream fis = new FileInputStream(file);
+			pubKeyBytes = new byte[(int) file.length()];
+			fis.read(pubKeyBytes);
+			fis.close();
+			X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(pubKeyBytes);
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			pubKeyObj = (PublicKey) keyFactory.generatePublic(pubKeySpec);
+	
+		} catch (Exception e) {
+			System.out.println("Error reading public key file");
+			e.printStackTrace();
+		}
+
+		// Read private key
+		byte[] prvKeyBytes = null;
+		try {
+			File file = new File(prvKey);
+			FileInputStream fis = new FileInputStream(file);
+			prvKeyBytes = new byte[(int) file.length()];
+			fis.read(prvKeyBytes);
+			fis.close();
+			PKCS8EncodedKeySpec prvKeySpec = new PKCS8EncodedKeySpec(prvKeyBytes);
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			prvKeyObj = (PrivateKey) keyFactory.generatePrivate(prvKeySpec);
+	
+		} catch (Exception e) {
+			System.out.println("Error reading private key file");
+			e.printStackTrace();
+		}
+
+		// Read input file
+		try (
+			FileInputStream fis = new FileInputStream(inputFileName);
+			FileOutputStream fos = new FileOutputStream(encryptedFileName);
+		) {
+			byte[] buffer = new byte[1024];
+			int length;
+			while ((length = fis.read(buffer)) > 0) {
+				BigInteger encrypted = rsa.encrypt(new BigInteger(buffer));
+				fos.write(encrypted.toByteArray());
+			}
+		} catch (Exception e) {
+			System.out.println("Error reading input file");
+			e.printStackTrace();
+		}
+
+		// Read encrypted file
+		try (
+			FileInputStream fis = new FileInputStream(encryptedFileName);
+			FileOutputStream fos = new FileOutputStream(decryptedFileName);
+		) {
+			byte[] buffer = new byte[1024];
+			int length;
+			while ((length = fis.read(buffer)) > 0) {
+				BigInteger decrypted = rsa.decrypt(new BigInteger(buffer));
+				fos.write(decrypted.toByteArray());
+			}
+		} catch (Exception e) {
+			System.out.println("Error reading encrypted file");
+			e.printStackTrace();
+		}
     }
 }

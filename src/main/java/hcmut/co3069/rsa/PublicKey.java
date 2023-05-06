@@ -1,7 +1,12 @@
 package hcmut.co3069.rsa;
 
 import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 public class PublicKey implements RSAPublicKey {
 	private BigInteger modulus;
@@ -34,7 +39,13 @@ public class PublicKey implements RSAPublicKey {
 
 	@Override
 	public byte[] getEncoded() {
-		// Implement encoding if necessary
-		return null;
+		try {
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(modulus, publicExponent);
+            return keyFactory.generatePublic(publicKeySpec).getEncoded();
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
