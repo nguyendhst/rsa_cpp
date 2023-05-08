@@ -45,6 +45,8 @@ java -jar  output.jar
   - `hcmut.co3069.rsa.PublicKey` - Contains the public key class for the project.
 
 ## Tổ chức code
+  - `src/main/java` - Chứa source code của project.
+  - `src/test/java` - Chứa test code của project.
   - `hcmut.co3069.rsa.RSACryptoSystem` - Chứa hàm `main` để thực thi chương trình.
   - `hcmut.co3069.rsa.Math` - Chứa các hàm tính toán liên quan đến số học.
   - `hcmut.co3069.rsa.PrivateKey` - Chứa các hàm để tạo và lưu private key.
