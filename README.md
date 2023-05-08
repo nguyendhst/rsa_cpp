@@ -1,9 +1,35 @@
 <h1 align="center"> Java RSA Implementation</h1>
    <h3 style="color:blue;"> Made for the CO3069 course</h3>
 
-## Commit message convention
-  - Format: `topic: msg` (e.g `fix: renamed class`)
-  - Some common topics: `build`, `feat`, `fix`, `docs`, `refactor`.
+## Thực thi chương trình
+
+### Thực thi sử dụng `java` để chạy `.class` files
+
+- Các file `.class` được tạo ra sau khi biên dịch sẽ được lưu trong thư mục `out/`. Để thực thi chương trình, ta cần thực hiện 2 lệnh sau:
+
+```bash
+javac -d ./out ./src/main/java/hcmut/co3069/rsa/*.java
+```
+
+```bash
+java -cp ./out/ hcmut.co3069.rsa.RSACryptoSystem
+```
+
+### Tạo `jar` file để thực thi
+
+Sau khi thực thi 2 lệnh trên, ta sẽ có các file `.class` trong thư mục `out/`. Để tạo file `.jar` để thực thi, ta cần tạo file `Manifest` chứa thông tin về `Main-Class` của chương trình.
+
+```bash
+echo Main-Class: hcmut.co3069.rsa.RSACryptoSystem > myManifest
+```
+
+```bash
+jar cfm ./output.jar myManifest -C ./out/ .
+```
+
+```bash
+java -jar  output.jar
+```
 
 ## Algorithms
 
