@@ -36,14 +36,6 @@ java -jar  output.jar
   - Build Automation: Gradle
   - Testing: JUnit 5
 
-## Project Layout
-  - `src/main/java` - Contains the source code for the project.
-  - `src/test/java` - Contains the test code for the project.
-  - `hcmut.co3069.rsa` - Contains the main class for the project.
-  - `hcmut.co3069.rsa.Utils` - Contains the utility classes for the project.
-  - `hcmut.co3069.rsa.PrivateKey` - Contains the private key class for the project.
-  - `hcmut.co3069.rsa.PublicKey` - Contains the public key class for the project.
-
 ## Tổ chức code
   - `src/main/java` - Chứa source code của project.
   - `src/test/java` - Chứa test code của project.
