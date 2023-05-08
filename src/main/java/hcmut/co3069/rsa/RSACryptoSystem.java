@@ -100,7 +100,7 @@ public class RSACryptoSystem {
         return privateKey;
     }
 
-    public static void main(String[] args) {
+    public static void testSystem1(){
         RSACryptoSystem rsa = new RSACryptoSystem(2048);
         rsa.generateKeyFiles();
 
@@ -115,10 +115,16 @@ public class RSACryptoSystem {
         System.out.println("Encrypted: " + encrypted);
         System.out.println("Decrypted: " + new String(decrypted.toByteArray()));
 
+
+
+    }
+    public static void testSystem2(){
         /**
          * Example 2: Encrypt and decrypt a file
          */
 
+        RSACryptoSystem rsa = new RSACryptoSystem(2048);
+        rsa.generateKeyFiles();
         String inputFileName = "input.txt";
         String encryptedFileName = "encrypted.txt";
         String decryptedFileName = "decrypted.txt";
@@ -127,8 +133,8 @@ public class RSACryptoSystem {
         try (
                 FileInputStream fis = new FileInputStream(inputFileName);
                 FileOutputStream fos = new FileOutputStream(encryptedFileName);) {
-            BigInteger message = new BigInteger(fis.readAllBytes());
-            BigInteger encrypted = rsa.encrypt(message);
+            BigInteger message1 = new BigInteger(fis.readAllBytes());
+            BigInteger encrypted = rsa.encrypt(message1);
             fos.write(encrypted.toByteArray());
         } catch (Exception e) {
             System.out.println("Error reading input file");
@@ -170,10 +176,15 @@ public class RSACryptoSystem {
             System.out.println("Error reading input file");
             e.printStackTrace();
         }
+
+    }
+    public static void testSystem3(){
         /**
          * Example 3: Encrypt and decrypt a file using public and private key files
          */
 
+        RSACryptoSystem rsa = new RSACryptoSystem(2048);
+        rsa.generateKeyFiles();
         String pubKeyName = "public.der";
         String prvKeyName = "private.der";
         String inputFileName = "input.txt";
@@ -251,6 +262,9 @@ public class RSACryptoSystem {
             e.printStackTrace();
         }
 
+    }
+
+   public static void testSystem4(){
         /**
          * Example 4: Encrypt and decrypt a file using AES RSA hybrid cryptosystem
          */

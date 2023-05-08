@@ -3,7 +3,13 @@ package hcmut.co3069.rsa;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import javax.crypto.SecretKey;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.math.BigInteger;
+import java.nio.file.Path;
 import java.security.SecureRandom;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -94,20 +100,20 @@ class MathTest {
     //   }
     //}
 
-	@Test
-	void strongPrimeTest() {
-		int bigLength = 1024;
-		for (int index = 0; index < 1; index++) {
-			BigInteger a = StrongPrimeGenerator.generate(bigLength);
-			//BigInteger a = Math.gordonStrongPrime(bigLength);
-			assertTrue(a.isProbablePrime(10));
-			// check bit length
-			// print bit length
-			System.out.println(a.bitLength());
-			System.out.println(bigLength);
-			//assertTrue(a.bitLength() == bigLength);
-		}
-	}
+//	@Test
+//	void strongPrimeTest() {
+//		int bigLength = 1024;
+//		for (int index = 0; index < 1; index++) {
+//			BigInteger a = StrongPrimeGenerator.generate(bigLength);
+//			//BigInteger a = Math.gordonStrongPrime(bigLength);
+//			assertTrue(a.isProbablePrime(10));
+//			// check bit length
+//			// print bit length
+//			System.out.println(a.bitLength());
+//			System.out.println(bigLength);
+//			//assertTrue(a.bitLength() == bigLength);
+//		}
+//	}
 
 
 	//@Test 
@@ -126,17 +132,17 @@ class MathTest {
 	//	}
 	//}
 
-	//@Test
-	//void testMai() {
-	//	RSACryptoSystem rsa = new RSACryptoSystem(2048);
-	//	System.out.println(rsa.getPublicKey().getModulus().bitLength());
-    //    String message = "Hello, RSA!";
-    //    BigInteger encrypted = rsa.encrypt(new BigInteger(message.getBytes()));
-    //    BigInteger decrypted = rsa.decrypt(encrypted);
-    //    System.out.println("Original message: " + message);
-    //    System.out.println("Encrypted: " + encrypted);
-    //    System.out.println("Decrypted: " + new String(decrypted.toByteArray()));
-	//}
+//	@Test
+//	void testMai() {
+//		RSACryptoSystem rsa = new RSACryptoSystem(2048);
+//		System.out.println(rsa.getPublicKey().getModulus().bitLength());
+//        String message = "Hello, RSA!";
+//        BigInteger encrypted = rsa.encrypt(new BigInteger(message.getBytes()));
+//        BigInteger decrypted = rsa.decrypt(encrypted);
+//        System.out.println("Original message: " + message);
+//        System.out.println("Encrypted: " + encrypted);
+//        System.out.println("Decrypted: " + new String(decrypted.toByteArray()));
+//	}
 
     //@Test
     //void millerRabin() {
@@ -153,15 +159,16 @@ class MathTest {
     //    }
     //}
 
-//    @Test
-//    void gordonStrongPrime1() {
-//        //SecureRandom rnd = new SecureRandom();
-//        int bitlen = 2048;
-//        for (int index = 0; index < 1; index++) {
-//            BigInteger p = Math.randomStrongPrime(bitlen);
-//            assertTrue(p.isProbablePrime(10));
-//        }
-//    }
+    @Test
+    void StrongPrime() {
+        //SecureRandom rnd = new SecureRandom();
+        int bitlen = 2048;
+        for (int index = 0; index < 1; index++) {
+            BigInteger p = Math.randomStrongPrime(bitlen);
+            assertTrue(p.isProbablePrime(10));
+        }
+    }
+
 ////
 ////	@Test
 ////	void gordonStrongPrime2() {
