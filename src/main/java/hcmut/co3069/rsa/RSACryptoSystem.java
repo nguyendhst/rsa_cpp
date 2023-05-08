@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
-import java.util.Scanner;
 
 import javax.crypto.SecretKey;
 
@@ -26,10 +25,8 @@ public class RSACryptoSystem {
 		bitLength = BigInteger.valueOf(keyBitLength);
 
 		// Generate p and q, two distinct strong primes
-		// BigInteger p = StrongPrimeGenerator.generate(keyBitLength / 2);
-		// BigInteger q = StrongPrimeGenerator.generate(keyBitLength / 2);
-		BigInteger p = Math.randomPrime(keyBitLength / 2);
-		BigInteger q = Math.randomPrime(keyBitLength / 2);
+		 BigInteger p = StrongPrimeGenerator.generate(keyBitLength / 2);
+		 BigInteger q = StrongPrimeGenerator.generate(keyBitLength / 2);
 
 		// Calculate n = p * q
 		BigInteger n = p.multiply(q);
