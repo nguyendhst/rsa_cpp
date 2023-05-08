@@ -6,3 +6,4 @@ custom.sh
 build_custom/
 .DS_Store
 bin/
+*.class

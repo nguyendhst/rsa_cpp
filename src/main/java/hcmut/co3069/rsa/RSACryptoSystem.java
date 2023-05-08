@@ -118,6 +118,7 @@ public class RSACryptoSystem {
 		/**
 		 * Options:
 		 * -example <n> : runs prewritten example
+		 * -generate : generates public and private keys
 		 * -encrypt <input> <output> <public_key> : encrypt a file
 		 * -decrypt <input> <output> <private_key> : decrypt a file
 		 * 
