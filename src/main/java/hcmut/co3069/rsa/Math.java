@@ -1,58 +1,26 @@
 package hcmut.co3069.rsa;
 
-import java.lang.invoke.MutableCallSite;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 public class Math {
 
     private static SecureRandom rng = new SecureRandom();
     public static final BigInteger SMALL_PRIME_PRODUCT = BigInteger
             .valueOf(2L * 3 * 5 * 7 * 11 * 13 * 17 * 19 * 23 * 29 * 31 * 37 * 41);
-    public static final BigInteger P0 = BigInteger.valueOf(10000000);
-    public static final double c_opt = 1.2;
-    public static final int margin = 20;
+
     /*
      * FUNCTION TrialDivision(a,b: Longlnt): BOOLEAN returns the value TRUE if
      * and only if a is not divisible by a prime smaller or equal to b. This
      * procedure
      * requires a list of small primes, e.g., the primes smaller than 216 = 65536.
      */
-    public static final int[] SMALL_PRIMES = getSmallPrimes();
+
 
     public Math(SecureRandom random) {
         rng = random;
     }
 
-    public static int[] getSmallPrimes() {
-        int p = 0;
-        int two16 = 65536;
-        ArrayList<Integer> primes = new ArrayList<Integer>();
-        while (p < two16) {
-            if (isPrime(p)) {
-                primes.add(p);
-            }
-            p++;
-        }
-        ;
-        return primes.stream().mapToInt(i -> i).toArray();
-    }
 
-    public static boolean isPrime(int n) {
-        if (n <= 1)
-            return false;
-        if (n <= 3)
-            return true;
-        if (n % 2 == 0 || n % 3 == 0)
-            return false;
-        for (int i = 5; i * i <= n; i = i + 6)
-            if (n % i == 0 || n % (i + 2) == 0)
-                return false;
-        return false;
-    }
 
 	/**
 	* Thuật toán như sau:
@@ -65,7 +33,9 @@ public class Math {
 	* ^ (exponent % 2) % modulus)) mod modulus
 	*/
     static BigInteger modPow(BigInteger base, BigInteger exponent, BigInteger modulus) {
-   
+        if (exponent.bitLength() < 32) {
+            return modPow(base, exponent.intValue(), modulus);
+        }
         BigInteger result = BigInteger.ONE;
 
         while (exponent.compareTo(BigInteger.ZERO) > 0) {
@@ -125,10 +95,6 @@ public class Math {
 		return a.add(min);
     }
 
-    private static double GenerateRelativeSize() {
-        double a = rng.nextFloat() / 2.0 + 0.5;
-        return a;
-    }
 
     // Generate a random number of the specified bit length in the range 2^(bits-1)
     // and 2^bits-1
@@ -151,56 +117,12 @@ public class Math {
         }
     }
 
-    public static BigInteger randomStrongPrime(int bitLength) {
-        BigInteger s = randomPrime(bitLength / 2);
-        BigInteger t = randomPrime(bitLength / 2);
-        boolean isPrime = false;
-        Random rnd = new SecureRandom();
-        int i = rnd.nextInt(100);
-        BigInteger r = BigInteger.ONE;
-        while (!isPrime) {
-            r = t.multiply(BigInteger.TWO).multiply(BigInteger.valueOf(i)).add(BigInteger.ONE);
-            i++;
-            if (millerRabinTest(r , BigInteger.valueOf(i))) {
-                isPrime = true;
-            }
-        }
-        BigInteger p_0 = BigInteger.TWO.multiply(modPow(s, r.subtract(BigInteger.TWO), r)).multiply(s)
-                .subtract(BigInteger.ONE);
-        isPrime = false;
-        int j = rnd.nextInt(100);
-        BigInteger p = BigInteger.ONE;
-        while (!isPrime) {
-            p = p_0.add(BigInteger.TWO.multiply(BigInteger.valueOf(j)).multiply(r).multiply(s));
-            j++;
-            if (millerRabinTest(p, BigInteger.valueOf(j))) {
-                isPrime = true;
-            }
-        }
-        return p;
-    }
 
-    /**
-     * p_0 = 2*(pow(s,r-2,r))*s-1
-     * 
-     * print (f"\np_0={p_0}")
-     * 
-     * isPrime=False
-     * j=random.randint(0,100)
-     * p=0
-     * while (isPrime==False):
-     * p=p_0+2*j*r*s
-     * j=j+1
-     * if (sympy.isprime(p)==True):
-     * isPrime=True
-     */
 
     public static BigInteger gordonStrongPrime(int bitLen) {
 
         SecureRandom random = new SecureRandom();
         BigInteger r;
-        //BigInteger s = BigInteger.probablePrime(bitLen, random);
-        //BigInteger t = BigInteger.probablePrime(bitLen, random);
 		BigInteger s = randomPrime(bitLen);
 		BigInteger t = randomPrime(bitLen);
 
@@ -320,7 +242,7 @@ public class Math {
     }
 
     public static boolean fermatTestBase(BigInteger n, BigInteger a) {
-        return a.modPow(n.subtract(BigInteger.ONE), n).equals(BigInteger.ONE);
+        return modPow(a,n.subtract(BigInteger.ONE), n).equals(BigInteger.ONE);
     }
 
     // millerRabinTest takes a BigInteger n and an integer k as input and returns
@@ -343,13 +265,11 @@ public class Math {
             r++;
             d = d.divide(BigInteger.TWO);
         }
-
-        // SecureRandom random = new SecureRandom();
-        // Math math = new Math(random);
         for (BigInteger i = BigInteger.ZERO; i.compareTo(k) < 0; i = i.add(BigInteger.ONE)) {
-            // BigInteger a =
-            // math.randomBigInteger(n.subtract(BigInteger.valueOf(2)).intValue());
-            BigInteger a = Math.randomBigInteger(2048);
+            BigInteger a;
+            do {
+                a = new BigInteger(n.bitLength(), new SecureRandom());
+            } while (a.compareTo(BigInteger.TWO) <0 || a.compareTo(n) >= 0);
             // BigInteger x = a.modPow(d, n);
             BigInteger x = modPow(a, d, n);
             if (x.equals(BigInteger.ONE) || x.equals(n.subtract(BigInteger.ONE))) {
@@ -419,7 +339,38 @@ public class Math {
 	
 		return randomBigInt.add(min);
 	}
-	
+    public static BigInteger randomStrongPrime(int N) {
+        if ((N < 512) || ((N % 128) != 0)){
+            throw new ArithmeticException("Strong prime size must be at least 512 bits and a multiple of 128");
+        }
+        double false_positive_prob = 2E-6;
+
+        int rabin_miller_rounds = (int) (java.lang.Math.ceil(-java.lang.Math.log(false_positive_prob)/java.lang.Math.log(4)));
+
+        int x = (N - 512) / 128;
+        System.out.println("x: " + x);
+
+        BigInteger lower_bound = new BigInteger("14142135623730950489").multiply(BigInteger.ONE.shiftLeft(511 + 128 * x )).divide(new BigInteger("10000000000000000000"));
+        BigInteger upper_bound = BigInteger.ONE.shiftLeft(512 + 128 * x).subtract(BigInteger.ONE);
+        BigInteger X = randomRange(lower_bound, upper_bound);
+        BigInteger[] p = {BigInteger.ZERO, BigInteger.ZERO};
+
+        for (int i = 0; i < 2; i++) {
+            p[i] = randomPrime(101);
+        }
+        BigInteger R = modInverse(p[1], p[0]).multiply(p[1]).subtract(modInverse(p[0], p[1]).multiply(p[0]));
+
+        BigInteger increment = p[0].multiply(p[1]);
+        X = X.add(R.subtract(X.mod(increment)));
+        while (!isProbablePrime(X, rabin_miller_rounds)) {
+            X = X.add(increment);
+
+            if (X.bitLength() > N) {
+                throw new RuntimeException("Couldn't find prime of size " + N);
+            }
+        }
+        return X;
+    }
 }
 
 //    public static BigInteger encrypt(PublicKey publicKey, String msg) {
